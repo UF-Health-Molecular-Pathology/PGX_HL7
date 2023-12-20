@@ -30,7 +30,7 @@ This repository contains Python code for analyzing PGX (Pharmacogenomics) TaqMan
     Clone the repository to your local machine:
 
     git clone https://github.com/kja3/PGX_HL7.git
-    cd pgx-taqman-genotyping
+    cd PGX_HL7
 
     ## Install the required Python packages:
 
