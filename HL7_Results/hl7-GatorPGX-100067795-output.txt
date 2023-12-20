@@ -1,0 +1,38 @@
+MSH|^~\&||EPIC||UFHPL GATORSEQ|20231220134552||ORU^R01|6.383867675225396e+17|P|2.3|||||||||||PID|1||E4424424^^^^EPI~3950^^^UF^MR~200000221364^^^^CI~02312625^^^^UF-PMR||HCLL^PEDIP||20120913|M||Unk|4987 SW 17TH AVE^^GAINESVILLE^FL^32606^USA^^^ALACHUA|ALACHUA|(352)555-9847^P^PH^^^352^5559847|||Single|||587-17-4484||passagept^mom^^|UNKNOWN||||||||N|||||PV1|||GP UF PATH LABS INT^^^30^^^^^^^||||1720069594^STAROSTIK^PETR^^^^^^EPIC^^^^PNPI||||||||||||20000268775|||||||||||||||||||||||||||||||IN1|1|1100001003|1100998|AETNA|PO BOX 14079^^LEXINGTON^KY^40512-4079^|||||||20210106||||HCLL^MOM^^|Child|19700106|4987 SW 17TH AVE^^GAINESVILLE^FL^32606^USA^^^ALACHUA|||1*1||||||||||||||209||||||Full|F||||||GT1|1|100001502|HCLL^MOM^^||4987 SW 17TH AVE^^GAINESVILLE^FL^32606^USA^^^ALACHUA|(352)555-9847^P^PH^^^352^5559847||19700106|F|P/F|3|829-84-8191||||PUBLIX SUPERMARKETS|P.O. BOX 2226-F^^JACKSONVILLE^FL^32231^USA|(904)781-8600^^^^^904^7818600||Full||||||||ORC|RE|351473084^EPC||20000268775|||^^^^^R^^||20230428113107|NEWKIM^NEWSOM^KIMBERLY^J^||1720069594^STAROSTIK^PETR^^^^^^EPIC^^^^PNPI|GP UF PATH LABS INT^^^301141^^^^^GP UF PATH LABS INT|(352)273-7842^^^^^352^2737842||||30310932^FX67-1166-W2||||||1600 S.W. Archer Road^Box 100275^GAINESVILLE^FL^32610^^C|||||O||||OBR|1|351473084^EPC|100067795^Beaker|LAB123050000^GATORPGX PANEL^UFMOLPRO|||20230428113100||||Lab Collect|||||1720069594^STAROSTIK^PETR^^^^^^EPIC^^^^PNPI|(352)273-7842^^^^^352^2737842|||||20231220134552||Genetics|R||^^^^^R^^|||||||||20230428113100|||||||||PRT|1|SP||OPO||||UF Health^^urn:uf_shands:ce.tst^^^EPC^XX^^^urn:uf_shands:ce.tst|||||||SPM|1|^PLMO23-000070&Beaker||Blood^Blood|||||||||||||20230428113100|20230428113118||Y||||
+OBX|1|CWE|48018-6^Gene Studied^LN|4a|^CYP2C Cluster^HGNC
+OBX|2|ST|12303110046^Genotype Display Name^LN|4a|G/G
+OBX|3|ST|1235884^CYP2C CLUSTER GENOTYPE|123050000|G/G||-||||P|||20231220134552|||2|UFHPL GatorSeq|20231220134552
+OBX|4|CWE|48018-6^Gene Studied^LN|4b|^CYP2C19^HGNC
+OBX|5|ST|12303110046^Genotype Display Name^LN|4b|*1/*17
+OBX|6|ST|1235856^CYP2C19 GENOTYPE|123050000|*1/*17||-||||P|||20231220134552|||2|UFHPL GatorSeq|20231220134552
+OBX|7|ST|123859^CYP2C19 PHENOTYPE|123050000|Rapid Metabolizer||-|A|||P|||20231220134552|||2|UFHPL GatorSeq|20231220134552
+NTE|1|L|Increased CYP2C19 enzyme activity. Pharmacogenetic variability in the CYP2C19 enzyme can affect the plasma concentrations of many medications, including clopidogrel, some SSRIs (i.e., sertraline, escitalopram, citalopram), some proton pump inhibitors (i.e., dexlansoprazole, lansoprazole, omeprazole, pantoprazole, possibly esomeprazole), and voriconazole.
+OBX|8|CWE|48018-6^Gene Studied^LN|4c|^CYP2C9^HGNC
+OBX|9|ST|12303110046^Genotype Display Name^LN|4c|*1/*2
+OBX|10|NM|123031010474^ACTIVITY SCORE^LN|4c|1.5
+OBX|11|ST|1235870^CYP2C9 GENOTYPE|123050000|*1/*2||-||||P|||20231220134552|||2|UFHPL GatorSeq|20231220134552
+OBX|12|ST|1235872^CYP2C9 PHENOTYPE|123050000|Intermediate Metabolizer||-|A|||P|||20231220134552|||2|UFHPL GatorSeq|20231220134552
+NTE|2|L|Decreased CYP2C9 enzyme activity. Pharmacogenetic variability in the CYP2C9 enzyme can affect the plasma concentrations of many medications, including some NSAIDs (i.e., ibuprofen, celecoxib, meloxicam, flurbiprofen, piroxicam), phenytoin, and warfarin. For warfarin, also consider VKORC1 genotype.
+OBX|13|ST|12358722^CYP2C9 ACTIVITY SCORE|123050000|1.5||-|A|||P|||20231220134552|||2|UFHPL GatorSeq|20231220134552
+OBX|14|CWE|48018-6^Gene Studied^LN|4d|^CYP2D6^HGNC
+OBX|15|ST|12303110046^Genotype Display Name^LN|4d|*1/*1
+OBX|16|NM|123031010474^ACTIVITY SCORE^LN|4d|2
+OBX|17|ST|1235814^CYP2D6 GENOTYPE|123050000|*1/*1||-||||P|||20231220134552|||2|UFHPL GatorSeq|20231220134552
+OBX|18|ST|1238513^CYP2D6 PHENOTYPE|123050000|Normal Metabolizer||-||||P|||20231220134552|||2|UFHPL GatorSeq|20231220134552
+NTE|3|L|Normal CYP2D6 enzyme activity. Pharmacogenetic variability in the CYP2D6 enzyme can affect the plasma concentrations of many medications, including some opioids (i.e., codeine, tramadol, hydrocodone), some antidepressants (i.e., paroxetine, venlafaxine, vortioxetine, fluvoxamine), ondansetron, atomoxetine, and tamoxifen. Drugs that inhibit CYP2D6 (e.g. bupropion, fluoxetine, paroxetine, quinidine, terbinafine, cimetidine, cinacalcet, duloxetine, fluvoxamine, mirabegron) may decrease CYP2D6 enzyme activity, independent of genotype.
+OBX|19|ST|1235815^CYP2D6 ACTIVITY SCORE|123050000|2||-||||P|||20231220134552|||2|UFHPL GatorSeq|20231220134552
+OBX|20|CWE|48018-6^Gene Studied^LN|4e|^CYP3A5^HGNC
+OBX|21|ST|12303110046^Genotype Display Name^LN|4e|*3/*3
+OBX|22|ST|1235875^CYP3A5 GENOTYPE|123050000|*3/*3||-||||P|||20231220134552|||2|UFHPL GatorSeq|20231220134552
+OBX|23|ST|1235876^CYP3A5 PHENOTYPE|123050000|Poor Metabolizer||-||||P|||20231220134552|||2|UFHPL GatorSeq|20231220134552
+NTE|4|L|No CYP3A5 enzyme activity. Pharmacogenetic variability in the CYP3A5 enzyme can affect the plasma concentration of tacrolimus. Note that the standard dosing of tacrolimus is based on the poor metabolizer phenotype.
+OBX|24|CWE|48018-6^Gene Studied^LN|4f|^CYP4F2^HGNC
+OBX|25|ST|12303110046^Genotype Display Name^LN|4f|*1/*1
+OBX|26|ST|9865^CYP4F2 GENOTYPE|123050000|*1/*1||-||||P|||20231220134552|||2|UFHPL GatorSeq|20231220134552
+OBX|27|CWE|48018-6^Gene Studied^LN|4g|^SLCO1B1^HGNC
+OBX|28|ST|12303110046^Genotype Display Name^LN|4g|*1/*1
+OBX|29|ST|1235882^SLCO1B1 GENOTYPE|123050000|*1/*1||-||||P|||20231220134552|||2|UFHPL GatorSeq|20231220134552
+OBX|30|ST|1235883^SLCO1B1 PHENOTYPE|123050000|Normal Function||-||||P|||20231220134552|||2|UFHPL GatorSeq|20231220134552
+OBX|31|CWE|48018-6^Gene Studied^LN|4h|^VKORC1^HGNC
+OBX|32|ST|12303110046^Genotype Display Name^LN|4h|A/A
+OBX|33|ST|1235886^VKORC1 GENOTYPE|123050000|A/A||-||||P|||20231220134552|||2|UFHPL GatorSeq|20231220134552
