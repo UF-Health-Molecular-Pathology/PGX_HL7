@@ -171,58 +171,89 @@ def clean_qs_data(full_df):
 
     # Update gene names using the dictionary
     qs_df['Gene Symbol'] = qs_df['Gene Symbol'].replace(gene_symbol_replacements, regex=True)
-
-    return qs_df
-
-
-def order_assays(qs_df):
-    """
-    Ensure assays are in the correct order for gt_pt_translator.
-
-    This function takes a DataFrame with assay data and ensures that the assays are
-    ordered based on a custom dictionary. It also performs specific replacements for
-    'Gene Symbol' values associated with certain assays.
-
-    Parameters:
-    - qs_df (pandas.DataFrame): DataFrame containing assay data with an 'Assay ID' column.
-
-    Returns:
-    pandas.DataFrame: A DataFrame with assays ordered based on the custom dictionary.
-    'Assay ID' column is renamed to 'Assay_ID', and specific 'Gene Symbol' values are updated.
-
-    Custom Dictionary:
-    {'C__25986767_70': 0, 'C__27861809_10': 1, ..., 'C___8726802_20': 46, 'C___1202883_20': 47}
-
-    Note:
-    - The custom dictionary defines the order of assays based on their 'Assay ID'.
-    - 'Gene Symbol' values for specific assays ('AH1RT7T' and 'AHWR1JA') are updated.
-    """
-
-    custom_dict = {'C__25986767_70': 0, 'C__27861809_10': 1, 'C__30634136_10': 2, 'C__27531918_10': 3,
-                   'C__30634130_30': 4, 'C____469857_10': 5, 'C__30634128_10': 6, 'Hs00010001_cn': 7,
-                   'C___2222771_A0': 8, 'C__11484460_40': 9, 'C__27102414_10': 10, 'C__27102425_10': 11,
-                   'C__27102431_D0': 12, 'C__32388575_A0': 13, 'C__32407229_60': 14, 'C__32407232_50': 15,
-                    'C__32407243_20': 16, 'C__34816113_20': 17, 'C__34816116_20': 18, 'C_30634117C_K0': 19,
-                    'C__26201809_30': 20, 'C__30203950_10': 21, 'C__32287188_10': 22, 'C__30633906_10': 23,
-                     'C__25625805_10': 24, 'C__27104892_10': 25, 'C__27859817_40': 26, 'C__32287221_20': 27,
-                     'C__25625804_10': 28, 'C__30634132_70': 29, 'C__31983399_10': 30, 'C__16179493_40': 31,
-                     'C__30403261_20': 32, 'C_154823200_10': 33, 'C__12091552_30': 34, 'C__30634116_20': 35,
-                    'C_____19567_20': 36, 'C__98253221_10': 37, 'AHWR1JA': 38, 'AH1RT7T': 39, 'C___1204093_20': 40,
-                    'C___1204091_10': 41, 'C____572770_20': 42, 'C____572771_10': 43, 'C__30026873_10': 44,
-                    'C__11975250': 45, 'C___8726802_20': 46, 'C___1202883_20': 47}
-
-    qs_df.sort_values(by=['Assay ID'], key=lambda x: x.map(custom_dict), inplace=True)
     qs_df.rename(columns={'Assay ID': 'Assay_ID'}, inplace=True)
-    qs_df.loc[qs_df['Assay_ID'] == 'AH1RT7T', 'Gene Symbol'] = 'APOL1'
-    qs_df.loc[qs_df['Assay_ID'] == 'AHWR1JA', 'Gene Symbol'] = 'APOL1'
 
     return qs_df
 
 
-def translate_results(qs_df):
-    """
-    Translate results from Quantstudios (QS) assays to Genotype-Phenotype (GT-PT) information.
+# Function to convert DataFrame to dictionary
+def convert_df_to_dict(df):
+    assay_results = {}
 
+    for index, row in df.iterrows():
+        assay_id = row['Assay_ID']
+        gene_name = row['Gene Symbol']
+        result = row['Then_convert']
+
+        if gene_name not in assay_results:
+            assay_results[gene_name] = {}
+
+        assay_results[gene_name][assay_id] = result
+    #print(assay_results)
+    return assay_results
+
+# Function to find the matching result for a given gene
+def get_star_alleles_generic(assay_results):
+    # Read the CSV file into a pandas DataFrame
+
+    lookup_table = pd.read_csv('/Users/kja3/PycharmProjects/PGX_HL7/PGX_Tables/PGX_Translator.csv', header=None)
+    lookup_table.drop(columns=[1], inplace=True)
+    star_alleles_mapping = {}
+
+    for gene, group_df in lookup_table.groupby(lookup_table.columns[0]):
+        df_cleaned = group_df.dropna(axis=1, how='all')
+
+        #print(f"\nProcessing gene: {gene}")
+        #print(df_cleaned)
+
+        if gene in assay_results:
+            #print(f"Gene {gene} found in assay_results.")
+            star_alleles_mapping[gene] = {}
+            matches = {}
+
+            for assay_id, result in assay_results[gene].items():
+                if assay_id == 'Hs00010001_cn':
+                    if isinstance(result, str) and result.endswith(".0"):
+                        result = result[:-2]  # Remove the last two characters (".0")
+
+                #     print(f"assay_id: {assay_id} with result: {result}")
+                # else:
+                #     print(f"assay_id: {assay_id} with result: {result}")
+
+                for column in df_cleaned.columns[2:]:  # Skipping 'Gene' and 'Assay_ID' columns
+                    if column not in matches:
+                        matches[column] = True
+
+                    matching_row = df_cleaned[df_cleaned[2] == assay_id]
+                    if not matching_row.empty:
+                        matching_value = matching_row[column].iloc[0]
+                        matches[column] &= (matching_value == result)
+
+            matched_column = None
+            for column, matched in matches.items():
+                if matched:
+                    matched_column = column
+                    break
+
+            if matched_column:
+                # Retrieve the value in the matched column of the first row
+                star_allele = df_cleaned.iloc[0][matched_column]
+                #print(f'star allele = {star_allele}')
+                star_alleles_mapping[gene] = star_allele
+
+        #     else:
+        #         print("No matching column found for gene", gene)
+        #
+        # else:
+        #     print(f"Gene {gene} not found in assay_results.")
+
+    # print("Final star_alleles_mapping:")
+    # print(star_alleles_mapping)
+    return star_alleles_mapping
+
+
+def translate_QS_data(df):
+    """
     This function utilizes translation tables to map results from QS assays to GT-PT information.
     The QS results are matched with the QS translational table, and the resulting information
     is further merged with the GT-PT translator to provide genotype and phenotype details.
@@ -253,25 +284,76 @@ def translate_results(qs_df):
 
     QS_translational_table_df = pd.read_csv(os.path.join(PGX_Tables, 'QS_Translator.csv'), index_col=False)
 
-    #Geneotype_Phenotype
-    GT_PT_translator_df = pd.read_csv(os.path.join(PGX_Tables, 'GT_PT_Translator.csv'),
-                                      encoding='unicode_escape', keep_default_na=False)
-
     # update the results to match QS_translational_table
-    QS_results_df = pd.merge(qs_df, QS_translational_table_df, how='left', left_on=['Assay_ID', 'Call'],
+    QS_results_df = pd.merge(df, QS_translational_table_df, how='left', left_on=['Assay_ID', 'Call'],
                              right_on=['Assay_ID', 'if_Call']).fillna("Not Detected")
+
     QS_results_df.Then_convert = np.where(QS_results_df.Assay_ID.eq('Hs00010001_cn'), QS_results_df.Call,
                                           QS_results_df.Then_convert)
 
-    # convert QS_results_df to concatenated with probes
-    QS_results_df['merge'] = QS_results_df['Assay_ID'] + QS_results_df['Then_convert'].astype(str)
-    QS_results_df['Call'] = QS_results_df.groupby(['Sample_ID', 'Gene Symbol'])['merge'].transform(lambda x: ''.join(x))
+    QS_results_df['if_Call'] = np.where(QS_results_df['Assay_ID'] == 'Hs00010001_cn',
+                                     QS_results_df['Call'],
+                                     QS_results_df['if_Call'])
 
-    # merge the translator with results to give pt gt info
-    GT_PT_Results_df = pd.merge(QS_results_df, GT_PT_translator_df, how='left', left_on=['Call'], right_on=['if_'])
-    GT_PT_Results_df['if_Call'] = np.where(
-        (GT_PT_Results_df['Assay_ID'] == 'Hs00010001_cn') & (GT_PT_Results_df['if_Call'] == 'Not Detected'), "",
-        GT_PT_Results_df['if_Call'])
+    # Update the Probe_information column based on the condition
+    QS_results_df['Probe_Information'] = np.where(QS_results_df['Assay_ID'] == 'Hs00010001_cn',
+                                                  'CYP2D6_ex9 (Copy Number)',
+                                                  QS_results_df['Probe_Information'])
+
+
+    return QS_results_df
+
+def translate_results(qs_df):
+
+    """Translate results from Quantstudios (QS) assays to Genotype-Phenotype (GT-PT) information."""
+
+    genes = qs_df['Gene Symbol'].unique().tolist()
+    samples = qs_df['Sample_ID'].unique().tolist()
+
+    # Initialize an empty DataFrame to store all the results
+    star_allele_result_df = pd.DataFrame()
+
+    for sample in samples:
+        print(f"Processing sample: {sample}")
+
+        # Filter QS_results_df for the current sample
+        sample_df = QS_results_df[QS_results_df['Sample_ID'] == sample]
+        sample_df = sample_df.sort_values(by=['Sample_ID', 'Gene Symbol', 'Assay_ID'])
+        #pd.set_option('display.max_columns', None)
+        #print(sample_df)
+
+        #funciton to translate the qs data to star allele calls
+        assay_results = convert_df_to_dict(sample_df)
+        star_allele_calls = get_star_alleles_generic(assay_results)
+
+        # Convert the dictionary to a DataFrame
+        star_alleles_df = pd.DataFrame.from_dict(star_allele_calls, orient='index', columns=['Allele'])
+        # Reset the index to get a clean DataFrame
+        star_alleles_df = star_alleles_df.reset_index()
+        # Rename the columns for clarity
+        star_alleles_df.columns = ['Gene Symbol', 'Genotype']
+
+        # Merge star_allele_calls_df with sample_df on 'Gene Symbol'
+        merged_df = pd.merge(sample_df, star_alleles_df, on='Gene Symbol', how='left')
+
+        # Concatenate merged_df to result_df
+        star_allele_result_df = pd.concat([star_allele_result_df, merged_df], ignore_index=True)
+        # Check for missing values in 'Genotype' column and fill them
+        # Check and replace empty dictionaries with 'No Matching Genotype'
+        star_allele_result_df['Genotype'] = star_allele_result_df['Genotype'].apply(
+            lambda x: '' if isinstance(x, dict) and not x else x)
+
+        # Load the GT-PT Translator table
+    GT_PT_translator_df = pd.read_csv(os.path.join(PGX_Tables, 'GT_PT_Translator.csv'),
+                                      encoding='unicode_escape', keep_default_na=False)
+
+
+    # Merge the translator with results to give PT GT info
+    GT_PT_Results_df = pd.merge(star_allele_result_df, GT_PT_translator_df, left_on=['Gene Symbol', 'Genotype'],
+                                right_on=['Gene Symbol', 'Genotype'], how='left')
+
+    #print(GT_PT_Results_df)
+    #GT_PT_Results_df.drop_duplicates(subset=['Sample_ID', 'Gene Symbol', 'Genotype', 'Assay_ID'], inplace=True)
 
     return GT_PT_Results_df
 
@@ -292,16 +374,12 @@ def full_report_review(GT_PT_Results_df):
     pandas.DataFrame: A review report DataFrame with essential information for each sample and gene.
 
     Note:
-    - The function drops unnecessary columns ('Call', 'if_', 'merge') to focus on essential information.
+    - The function drops unnecessary columns to focus on essential information.
     - The resulting DataFrame is sorted based on 'Sample_ID', 'Gene Symbol', and 'Assay_ID'.
     - The column order is adjusted to include relevant information such as sample ID, assay ID, probe information, gene symbol,
       translated calls ('if_Call', 'Then_convert'), genotype, phenotype, and activity score.
     """
 
-    GT_PT_Full_Results_df = GT_PT_Results_df.drop(columns=['Call', 'if_', 'merge'])
-    GT_PT_Full_Results_df = GT_PT_Full_Results_df.sort_values(by=['Sample_ID', 'Gene Symbol', 'Assay_ID'])
-
-    # Reorder columns
     GT_PT_Full_Results_df = GT_PT_Results_df[['Sample_ID', 'Assay_ID', 'Probe_Information', 'Gene Symbol',
                                               'if_Call', 'Then_convert', 'Genotype', 'Phenotype', 'Activity_Score']]
 
@@ -325,7 +403,7 @@ def process_results_df(GT_PT_Results_df):
     """
 
     GT_PT_Results_df.drop_duplicates(subset=['Sample_ID', 'Gene Symbol', 'Genotype'], inplace=True)
-    GT_PT_Results_df.sort_values(by=['Sample_ID', 'Gene Symbol'], inplace=True)
+    GT_PT_Results_df.sort_values(by=['Sample_ID', 'Gene Symbol', 'Assay_ID'], inplace=True)
 
     # Create a copy of the DataFrame
     processed_results_df = GT_PT_Results_df.copy()
@@ -335,7 +413,6 @@ def process_results_df(GT_PT_Results_df):
                                                  'Comment', 'Flag_Note']]
     # Rename columns
     processed_results_df.rename(columns={'Gene Symbol': 'Gene_Symbol'}, inplace=True)
-
     return processed_results_df
 
 
@@ -394,7 +471,7 @@ def alternating_colors(df):
     return alternating_colors
 
 
-def print_results_pdf(df1, df2):
+def print_results_pdf(df1, df2, output_dir):
     """
     This function creates a PDF file containing tables for reviewing PGX TaqMan Genotyping results.
     It takes two DataFrames (df1 and df2) as input, creates tables for each Sample_ID, and saves the
@@ -403,17 +480,19 @@ def print_results_pdf(df1, df2):
     Parameters:
     - df1 (pd.DataFrame): The first DataFrame containing PGX TaqMan Genotyping results.
     - df2 (pd.DataFrame): The second DataFrame containing PGX TaqMan Genotyping results.
+    -output_dir: Directory for the PDF file.
 
-    Returns:
-    None
     """
     dir_path = Path(QS_INPUT)
     sample_files = []
     for path in os.listdir(dir_path):
-        if os.path.isfile(os.path.join(path)):
+        if os.path.isfile(os.path.join(dir_path, path)):
             sample_files.append(path)
 
-    with PdfPages('PGX_TaqMan_Genotyping_Data_Review.pdf') as pdf:
+    pdf_filename = f'PGX_TaqMan_Genotyping_Data_Review.pdf'
+    pdf_path = Path(output_dir) / pdf_filename
+
+    with PdfPages(pdf_path) as pdf:
         for Sample_ID in df1['Sample_ID'].unique():
             sample_df1 = df1.loc[df1['Sample_ID'] == Sample_ID]
             sample_df2 = df2.loc[df2['Sample_ID'] == Sample_ID]
@@ -624,14 +703,16 @@ def append_OBX_segments(sample_df, obx_segments):
             activity_score = sample_df.loc[sample_df['Gene_Symbol'] == gene_symbol, 'Activity_Score'].values[0]
 
             # VAR required segments (not currently reporting phenotype in var)
-            obx_segments.append('OBX|{}|CWE|48018-6^Gene Studied^LN|4{}|^{}^HGNC'.format(i, gi, gene_name))
-            i += 1
-            obx_segments.append('OBX|{}|ST|12303110046^Genotype Display Name^LN|4{}|{}'.format(i, gi, genotype))
-            i += 1
+            if 'genotype' in lrr_gene_obx_mapping[gene_symbol] and genotype !='':
+                obx_segments.append('OBX|{}|CWE|48018-6^Gene Studied^LN|4{}|^{}^HGNC'.format(i, gi, gene_name))
+                i += 1
+                obx_segments.append('OBX|{}|ST|12303110046^Genotype Display Name^LN|4{}|{}'.format(i, gi, genotype))
+                i += 1
 
             # VAR for activity score if required -
             if 'activity_score' in lrr_gene_obx_mapping[gene_symbol] and activity_score is not None:
-                if '^' in activity_score:
+                activity_score_str = str(activity_score)
+                if '^' in activity_score_str:
                     obx_segments.append('OBX|{}|NR|123031010474^ACTIVITY SCORE^LN|4{}|{}'.format(i, gi, activity_score))
                 else:
                     obx_segments.append('OBX|{}|NM|123031010474^ACTIVITY SCORE^LN|4{}|{}'.format(i, gi, activity_score))
@@ -640,18 +721,25 @@ def append_OBX_segments(sample_df, obx_segments):
 
             #LRR segments:
             # LRR for genotype
-            obx_segments.append('OBX|{}|ST|{}|123050000|{}||-||||P|||{}|||2|UFHPL GatorSeq|{}'.format(
-                i, lrr_gene_obx_mapping[gene_symbol].get('genotype', ''), genotype, timestamp, timestamp))
-            i += 1
+            if 'genotype' in lrr_gene_obx_mapping[gene_symbol] and genotype !='':
+                obx_segments.append('OBX|{}|ST|{}|123050000|{}||-||||P|||{}|||2|UFHPL GatorSeq|{}'.format(
+                    i, lrr_gene_obx_mapping[gene_symbol].get('genotype', ''), genotype, timestamp, timestamp))
+                i += 1
 
             # LRR for phenotype if required
-            if 'phenotype' in lrr_gene_obx_mapping[gene_symbol] and phenotype is not None:
+            if 'phenotype' in lrr_gene_obx_mapping[gene_symbol] \
+                    and genotype != '' \
+                    and not (phenotype == '' or phenotype == 'nan' or phenotype == 'Report Genotype Only'):
+
                 obx_segments.append('OBX|{}|ST|{}|123050000|{}||-|{}|||P|||{}|||2|UFHPL GatorSeq|{}'.format(
                     i, lrr_gene_obx_mapping[gene_symbol].get('phenotype', ''), phenotype, flag, timestamp, timestamp))
                 i += 1
 
+
             # LRR for Comment if required
-            if 'comment' in lrr_gene_obx_mapping[gene_symbol] and comment is not None:
+            if 'comment' in lrr_gene_obx_mapping[gene_symbol] \
+                    and genotype != '' \
+                    and not (comment !='' or comment != 'nan'):
                 obx_segments.append('NTE|{}|L|{}'.format(ni, comment))
                 ni += 1
 
@@ -679,15 +767,16 @@ if __name__ == "__main__":
     HL7_Orders = os.path.join(script_dir, 'HL7_Orders')
     QS_INPUT = os.path.join(script_dir, 'QS_Data')
     os.chdir(QS_INPUT)
-    
+
     num = find_cnv_start_line("Sample Name")
     cnv_df = cnv_data_frame(num)
     snp_num = find_snp_start_line("Assay Name")
     snp_df = snp_data_frame(snp_num)
     full_df = snp_cnv_data_frame(cnv_df, snp_df)
     qs_df = clean_qs_data(full_df)
-    qs_df = order_assays(qs_df)
+    QS_results_df = translate_QS_data(qs_df)
     GT_PT_Results_df = translate_results(qs_df)
+
 
     # Full data review report
     GT_PT_Full_Results_df = full_report_review(GT_PT_Results_df)
@@ -696,9 +785,10 @@ if __name__ == "__main__":
     unique_samples_df = GT_PT_HL7_Results_df.drop_duplicates(subset=['Sample_ID'])
 
     # sample results summary review report
+    output_directory = '/Users/kja3/PycharmProjects/PGX_HL7'
     GT_PT_printing_Results_df = results_for_printing(GT_PT_Results_df)
     GT_PT_Review_df = GT_PT_printing_Results_df[['Sample_ID', 'Gene_Symbol', 'Genotype', 'Phenotype', 'Activity_Score']]
-    print_results_pdf(GT_PT_Review_df, GT_PT_Full_Results_df)
+    print_results_pdf(GT_PT_Review_df, GT_PT_Full_Results_df, output_directory)
 
     #retreive container IDs from HL7 orders and append data for matching sample.
     hl7_folder_path = HL7_Orders
