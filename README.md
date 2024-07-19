@@ -53,13 +53,14 @@ This repository contains Python code for analyzing PGX (Pharmacogenomics) TaqMan
     │ └── hl7-GatorPGX-100079914-output.txt
     ├── PGX_Tables/
     │ ├── GT_PT_Translator.csv
+    │ ├── PGX_Translator.csv
     │ └── QS_Translator.csv
     ├── QS_Data/
     │ ├── CN GPGX-QS-23-30b Results.csv
-    │ ├── GPGX-QS-23-30b_20230328_112910_Export.csv
-    │ └── PGX_TaqMan_Genotyping_Data_Review.pdf
-    ├── PGX_HL7.py
-    └── README.md
+    │ └── GPGX-QS-23-30b_20230328_112910_Export.csv
+    ├──PGX_HL7.py
+    ├──PGX_TaqMan_Genotyping_Data_Review.pdf
+    └──README.md
 
 ## Description
 
