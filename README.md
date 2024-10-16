@@ -29,7 +29,7 @@ This repository contains Python code for analyzing PGX (Pharmacogenomics) TaqMan
 
     Clone the repository to your local machine:
 
-    git clone https://github.com/kja3/PGX_HL7.git
+    git clone https://github.com/UF-Health-Molecular-Pathology/PGX_HL7
     cd PGX_HL7
 
     ## Install the required Python packages:
